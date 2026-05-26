@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Interativo de Prospecção - WhatsApp RS</title>
+    <!-- Importação de Fonte Moderna do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --primary-glow: rgba(139, 92, 246, 0.4);
+            --accent-emerald: #10b981;
+            --accent-emerald-glow: rgba(16, 185, 129, 0.3);
+            
+            /* Status Colors */
+            --color-pending-bg: rgba(245, 158, 11, 0.15);
+            --color-pending-text: #fbbf24;
+            --color-sent-bg: rgba(59, 130, 246, 0.15);
+            --color-sent-text: #60a5fa;
+            --color-nointerest-bg: rgba(239, 68, 68, 0.15);
+            --color-nointerest-text: #f87171;
+            --color-success-bg: rgba(16, 185, 129, 0.15);
+            --color-success-text: #34d399;
+            
+            /* New Statuses */
+            --color-notexists-bg: rgba(156, 163, 175, 0.15);
+            --color-notexists-text: #9ca3af;
+            --color-alreadyclient-bg: rgba(139, 92, 246, 0.15);
+            --color-alreadyclient-text: #c084fc;
+            --color-nogames-bg: rgba(244, 63, 94, 0.15);
+            --color-nogames-text: #fb7185;
+            --color-outsources-bg: rgba(14, 165, 233, 0.15);
+            --color-outsources-text: #38bdf8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        header {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 1.25rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            background: linear-gradient(135deg, var(--primary), var(--accent-emerald));
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffffff, #d8b4fe, #a7f3d0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            border-radius: 0.625rem;
+            padding: 0.625rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid transparent;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(51, 65, 85, 0.5);
+            color: var(--text-main);
+            border-color: var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(51, 65, 85, 0.8);
+            border-color: var(--text-muted);
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            flex-grow: 1;
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                grid-template-columns: 2fr 1.2fr;
+                align-items: start;
+            }
+        }
+
+        /* Glassmorphic Card Style */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1.25rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* KPI Dashboard Row */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (min-width: 640px) {
+            .kpi-row {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .kpi-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .kpi-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .kpi-active-emerald .kpi-value {
+            color: var(--accent-emerald);
+            text-shadow: 0 0 15px var(--accent-emerald-glow);
+        }
+
+        /* Filters Section */
+        .filters {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            background: rgba(15, 23, 42, 0.4);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--card-border);
+        }
+
+        @media (min-width: 640px) {
+            .filters {
+                flex-direction: row;
+            }
+        }
+
+        .input-group {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+        }
+
+        .input-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            padding: 0.625rem 0.875rem;
+            color: white;
+            font-family: inherit;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.25s ease;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
+            padding-right: 2.25rem;
+        }
+
+        /* Lead List Table Styling */
+        .table-container {
+            max-height: 520px;
+            overflow-y: auto;
+            border: 1px solid var(--card-border);
+            border-radius: 0.75rem;
+            background: rgba(15, 23, 42, 0.3);
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: #1e293b;
+            z-index: 10;
+        }
+
+        th {
+            padding: 0.875rem 1rem;
+            font-weight: 700;
+            color: white;
+            border-bottom: 1px solid var(--card-border);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            vertical-align: middle;
+            transition: background 0.15s ease;
+        }
+
+        tr {
+            cursor: pointer;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        tr.active-row td {
+            background: rgba(139, 92, 246, 0.12);
+            border-left: 3px solid var(--primary);
+        }
+
+        .lead-name-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .lead-name {
+            font-weight: 600;
+            color: white;
+        }
+
+        .lead-city {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-pending {
+            background: var(--color-pending-bg);
+            color: var(--color-pending-text);
+        }
+
+        .badge-sent {
+            background: var(--color-sent-bg);
+            color: var(--color-sent-text);
+        }
+
+        .badge-nointerest {
+            background: var(--color-nointerest-bg);
+            color: var(--color-nointerest-text);
+        }
+
+        .badge-success {
+            background: var(--color-success-bg);
+            color: var(--color-success-text);
+        }
+
+        /* CRM Status Selector in Table */
+        .status-select {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.4rem center;
+            background-size: 0.75rem;
+        }
+
+        .status-select:focus {
+            border-color: var(--primary);
+            background-color: #1e293b;
+        }
+
+        .status-select.pending {
+            border-color: var(--color-pending-text);
+            color: var(--color-pending-text);
+        }
+        .status-select.sent {
+            border-color: var(--color-sent-text);
+            color: var(--color-sent-text);
+        }
+        .status-select.nointerest {
+            border-color: var(--color-nointerest-text);
+            color: var(--color-nointerest-text);
+        }
+        .status-select.success {
+            border-color: var(--color-success-text);
+            color: var(--color-success-text);
+        }
+        .status-select.notexists {
+            border-color: var(--color-notexists-text);
+            color: var(--color-notexists-text);
+        }
+        .status-select.alreadyclient {
+            border-color: var(--color-alreadyclient-text);
+            color: var(--color-alreadyclient-text);
+        }
+        .status-select.nogames {
+            border-color: var(--color-nogames-text);
+            color: var(--color-nogames-text);
+        }
+        .status-select.outsources {
+            border-color: var(--color-outsources-text);
+            color: var(--color-outsources-text);
+        }
+
+        /* Template & Preview Editor Panel */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            position: sticky;
+            top: 6.5rem;
+        }
+
+        .lead-detail-header {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+        }
+
+        .lead-detail-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.375rem;
+        }
+
+        .lead-detail-address {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .lead-detail-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .meta-pill {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--card-border);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 0.375rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            color: var(--text-main);
+        }
+
+        .meta-pill-link {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .meta-pill-link:hover {
+            text-decoration: underline;
+        }
+
+        .template-variables {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .var-btn {
+            background: rgba(139, 92, 246, 0.1);
+            color: #d8b4fe;
+            border: 1px dashed rgba(139, 92, 246, 0.4);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .var-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .message-textarea {
+            min-height: 140px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        /* Preview Display */
+        .preview-box {
+            background: #151d30;
+            background-image: 
+                radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
+                url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239c1155' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2v2h-2V0zm0 4h2v2h-2V4zm0 4h2v2h-2V8zm0 12h2v2h-2v-2zm0 12h2v2h-2v-2zm4 4h2v2h-2v-2zm4 0h2v2h-2v-2zm12 0h2v2h-2v-2zm12 0h2v2h-2v-2zM0 40h2v2H0v-2zm0 4h2v2H0v-2zm0 4h2v2H0v-2zm0 12h2v2H0v-2zm0 12h2v2H0v-2zm4-4h2v2H-2v-2zm4 0h2v2H-2v-2zm12 0h2v2H-2v-2zm12 0h2v2H-2v-2z'/%3E%3C/g%3E%3C/svg%3E");
+            border: 1px solid var(--card-border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            color: #e5e7eb;
+            max-height: 220px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .preview-box::before {
+            content: 'PRÉ-VISUALIZAÇÃO DA MENSAGEM';
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 1px;
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .action-row .btn {
+            justify-content: center;
+            padding: 0.875rem;
+            font-size: 0.9375rem;
+        }
+
+        .btn-whatsapp-web {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-whatsapp-web:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .btn-whatsapp-api {
+            background: #1e293b;
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .btn-whatsapp-api:hover {
+            background: rgba(52, 211, 153, 0.1);
+            transform: translateY(-1px);
+        }
+
+        footer {
+            margin-top: auto;
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid var(--card-border);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Toast Alert System */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #1e293b;
+            border-left: 4px solid var(--accent-emerald);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-logo">
+            <div class="logo-icon">⚡</div>
+            <div>
+                <h1 class="brand-title">DISPATCHER WHATSAPP</h1>
+                <p style="font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.5px; font-weight: 700;">ECOSISTEMA DE PROSPECÇÃO RS</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="exportCSV()" title="Baixar lista atualizada com status do CRM">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Exportar CRM (CSV)
+            </button>
+            <button class="btn btn-danger" onclick="resetAllCRM()" title="Limpa todo o histórico de status salvos">
+                Limpar CRM
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- LEADS AREA (LEFT) -->
+        <div class="card" style="gap: 1.25rem;">
+            <!-- KPI Cards Row -->
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <span class="kpi-value" id="kpi-total">0</span>
+                    <span class="kpi-label">Total Leads</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-value" style="color: var(--color-pending-text);" id="kpi-pending">0</span>
+                    <span class="kpi-label">Pendentes</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-value" style="color: var(--color-sent-text);" id="kpi-sent">0</span>
+                    <span class="kpi-label">Contatados</span>
+                </div>
+                <div class="kpi-card kpi-active-emerald">
+                    <span class="kpi-value" id="kpi-success">0</span>
+                    <span class="kpi-label">Sucessos</span>
+                </div>
+            </div>
+
+            <!-- Filters & Search Bar -->
+            <div class="filters">
+                <div class="input-group" style="flex: 2;">
+                    <span class="input-label">Buscar Lead</span>
+                    <input type="text" id="search-input" class="form-control" placeholder="Buscar por Nome, Cidade, Endereço..." oninput="filterLeads()">
+                </div>
+                <div class="input-group">
+                    <span class="input-label">Filtrar por Cidade</span>
+                    <select id="city-select" class="form-control" onchange="filterLeads()">
+                        <option value="">Todas as Cidades</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <span class="input-label">Status CRM</span>
+                    <select id="status-filter" class="form-control" onchange="filterLeads()">
+                        <option value="">Todos</option>
+                        <option value="Pendente">Pendentes</option>
+                        <option value="Contatado">Contatados</option>
+                        <option value="Sucesso">Sucessos</option>
+                        <option value="Sem Interesse">Sem Interesse</option>
+                        <option value="Não existe">Não existe</option>
+                        <option value="Já é cliente">Já é cliente</option>
+                        <option value="Não conserta games">Não conserta games</option>
+                        <option value="Terceriza">Terceriza</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Lead List Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 45%;">Nome / Loja</th>
+                            <th style="width: 25%;">WhatsApp</th>
+                            <th style="width: 30%;">Status CRM</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leads-table-body">
+                        <!-- Gerado Dinamicamente por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- EDITOR & PREVIEW (RIGHT) -->
+        <div class="editor-container">
+            <!-- Active Lead Details Card -->
+            <div class="card" id="detail-card">
+                <div class="lead-detail-header">
+                    <h2 class="lead-detail-title" id="active-shop-name">Selecione um Lead</h2>
+                    <p class="lead-detail-address" id="active-shop-address">Escolha uma assistência na tabela para iniciar a abordagem</p>
+                    
+                    <div class="lead-detail-meta" id="active-shop-meta" style="display: none;">
+                        <span class="meta-pill">
+                            📍 <span id="active-shop-city">Cidade</span>
+                        </span>
+                        <span class="meta-pill">
+                            📞 <span id="active-shop-phone">Número</span>
+                        </span>
+                        <span class="meta-pill">
+                            🔗 <a href="#" id="active-shop-url" class="meta-pill-link" target="_blank">Visitar Website</a>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Template Message Customizer -->
+                <div class="input-group">
+                    <span class="input-label">Template de Abordagem Comercial</span>
+                    <div class="template-variables">
+                        <button class="var-btn" onclick="insertVariable('{{shop_brand}}')">{brand}</button>
+                        <button class="var-btn" onclick="insertVariable('{{city}}')">{cidade}</button>
+                        <button class="var-btn" onclick="insertVariable('{{contact_link}}')">{link_site}</button>
+                    </div>
+                    <textarea id="template-text" class="form-control message-textarea" oninput="updateMessagePreview()"></textarea>
+                </div>
+
+                <!-- Rendered Message Box -->
+                <div class="input-group">
+                    <span class="input-label">Mensagem Pronta para Envio</span>
+                    <div class="preview-box" id="message-preview">Selecione uma assistência para ver a mensagem renderizada.</div>
+                </div>
+
+                <!-- Main CTA Dispatches -->
+                <div class="action-row">
+                    <button class="btn btn-whatsapp-web" id="btn-call-web" onclick="sendWhatsApp('web')" disabled>
+                        💻 WhatsApp Web
+                    </button>
+                    <button class="btn btn-whatsapp-api" id="btn-call-api" onclick="sendWhatsApp('api')" disabled>
+                        📱 Enviar via Celular
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Ecossistema de Prospecção Automatizada RS - Desenvolvido para Vendas de Atacado em Assistências de Videogame</p>
+        <p style="margin-top: 0.25rem; font-size: 0.7rem; color: #64748b;">Salva dados localmente no navegador via LocalStorage. Funciona 100% offline.</p>
+    </footer>
+
+    <!-- Toast Alert Notification -->
+    <div class="toast" id="toast-alert">
+        <span style="font-size: 1.25rem;">✅</span>
+        <span id="toast-message">Status atualizado com sucesso!</span>
+    </div>
+
+    <!-- Leads Data Injection -->
+    <script>
+        // Banco de leads injetado do Python
+        const LEADS_DATA = [{"phone_digits": "5551998980050", "phone_friendly": "+55 (51) 99898-0050", "shop_brand": "ConsertV", "shop_full_name": "ConsertV (Assistência Técnica de TV e Videogames)", "city": "Porto Alegre", "address": "R. Dr. Campos Velho, 710 - Cristal, Porto Alegre - RS", "contact_link": "http://consertv.com.br", "personalized_message": "Olá, pessoal da ConsertV! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555137374546", "phone_friendly": "+55 (51) 3737-4546", "shop_brand": "BeB Games", "shop_full_name": "BeB Games - Barra Shopping Sul", "city": "Porto Alegre", "address": "Av. Diário de Notícias, 300 - Cristal, Porto Alegre - RS", "contact_link": "https://bebgames.com.br", "personalized_message": "Olá, pessoal da BeB Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551996524792", "phone_friendly": "+55 (51) 99652-4792", "shop_brand": "BeB Games", "shop_full_name": "BeB Games - Shopping Iguatemi", "city": "Porto Alegre", "address": "Av. João Wallig, 1800 - Passo d'Areia, Porto Alegre - RS", "contact_link": "https://bebgames.com.br", "personalized_message": "Olá, pessoal da BeB Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551996156830", "phone_friendly": "+55 (51) 99615-6830", "shop_brand": "BeB Games", "shop_full_name": "BeB Games - Bourbon Teresópolis", "city": "Porto Alegre", "address": "Av. Aparício Borges, 250 - Teresópolis, Porto Alegre - RS", "contact_link": "https://bebgames.com.br", "personalized_message": "Olá, pessoal da BeB Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551993845120", "phone_friendly": "+55 (51) 99384-5120", "shop_brand": "BeB Games", "shop_full_name": "BeB Games - Bourbon Assis Brasil", "city": "Porto Alegre", "address": "Av. Assis Brasil, 164 - São João, Porto Alegre - RS", "contact_link": "https://bebgames.com.br", "personalized_message": "Olá, pessoal da BeB Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551996710123", "phone_friendly": "+55 (51) 99671-0123", "shop_brand": "BeB Games", "shop_full_name": "BeB Games - Bourbon Wallig", "city": "Porto Alegre", "address": "Av. João Wallig, 1800 - Passo d'Areia, Porto Alegre - RS", "contact_link": "https://bebgames.com.br", "personalized_message": "Olá, pessoal da BeB Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551980554628", "phone_friendly": "+55 (51) 98055-4628", "shop_brand": "BeB Games", "shop_full_name": "BeB Games - Shopping PASEO", "city": "Porto Alegre", "address": "Av. Wenceslau Escobar, 1823 - Tristeza, Porto Alegre - RS", "contact_link": "https://bebgames.com.br", "personalized_message": "Olá, pessoal da BeB Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551996275596", "phone_friendly": "+55 (51) 99627-5596", "shop_brand": "BeB Games", "shop_full_name": "BeB Games - Ipiranga", "city": "Porto Alegre", "address": "Av. Ipiranga, 690 - Praia de Belas, Porto Alegre - RS", "contact_link": "https://bebgames.com.br", "personalized_message": "Olá, pessoal da BeB Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555130850266", "phone_friendly": "+55 (51) 3085-0266", "shop_brand": "Consert Game", "shop_full_name": "Consert Game", "city": "Porto Alegre", "address": "Av. Alberto Bins, 362 - Sala 04, Centro Histórico, Porto Alegre - RS", "contact_link": "https://facebook.com/consertgame", "personalized_message": "Olá, pessoal da Consert Game! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555133314745", "phone_friendly": "+55 (51) 3331-4745", "shop_brand": "CiaGames", "shop_full_name": "CiaGames", "city": "Porto Alegre", "address": "Rua Felipe Camarão, 746 - Bom Fim, Porto Alegre - RS", "contact_link": "http://ciagames.com.br", "personalized_message": "Olá, pessoal da CiaGames! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555135088335", "phone_friendly": "+55 (51) 3508-8335", "shop_brand": "Tek Games", "shop_full_name": "Tek Games", "city": "Porto Alegre", "address": "Av. Assis Brasil, 1673 - Passo d'Areia, Porto Alegre - RS", "contact_link": "https://instagram.com/tekgamespoa", "personalized_message": "Olá, pessoal da Tek Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555132254822", "phone_friendly": "+55 (51) 3225-4822", "shop_brand": "Banzai Games", "shop_full_name": "Banzai Games", "city": "Porto Alegre", "address": "R. São Luís, 1056 - Santana, Porto Alegre - RS", "contact_link": "https://instagram.com/banzaigames", "personalized_message": "Olá, pessoal da Banzai Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555132257345", "phone_friendly": "+55 (51) 3225-7345", "shop_brand": "Eletrônica MK", "shop_full_name": "Eletrônica MK", "city": "Porto Alegre", "address": "R. Mal. Floriano Peixoto, 13 - Sala 41 e 42, Centro Histórico, Porto Alegre - RS", "contact_link": "https://eletronicamk.com.br", "personalized_message": "Olá, pessoal da Eletrônica MK! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551990152009", "phone_friendly": "+55 (51) 99015-2009", "shop_brand": "Roberto Celular", "shop_full_name": "Roberto Celular - Cristo Redentor", "city": "Porto Alegre", "address": "Av. Assis Brasil, 3215 - Cristo Redentor, Porto Alegre - RS", "contact_link": "https://robertocelular.com.br", "personalized_message": "Olá, pessoal da Roberto Celular! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551991326318", "phone_friendly": "+55 (51) 99132-6318", "shop_brand": "Roberto Celular", "shop_full_name": "Roberto Celular - Praia de Belas", "city": "Porto Alegre", "address": "Praia de Belas Shopping, Porto Alegre - RS", "contact_link": "https://robertocelular.com.br", "personalized_message": "Olá, pessoal da Roberto Celular! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551994721843", "phone_friendly": "+55 (51) 99472-1843", "shop_brand": "Roberto Celular", "shop_full_name": "Roberto Celular - Bourbon Assis Brasil", "city": "Porto Alegre", "address": "Bourbon Assis Brasil, Porto Alegre - RS", "contact_link": "https://robertocelular.com.br", "personalized_message": "Olá, pessoal da Roberto Celular! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551994101424", "phone_friendly": "+55 (51) 99410-1424", "shop_brand": "Roberto Celular", "shop_full_name": "Roberto Celular - Andradas", "city": "Porto Alegre", "address": "Rua dos Andradas, 1344 - Centro Histórico, Porto Alegre - RS", "contact_link": "https://robertocelular.com.br", "personalized_message": "Olá, pessoal da Roberto Celular! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551994591368", "phone_friendly": "+55 (51) 99459-1368", "shop_brand": "Akira Eletrônica", "shop_full_name": "Akira Eletrônica - Centro", "city": "Porto Alegre", "address": "Av. Alberto Bins, 662 – Centro Histórico, Porto Alegre - RS", "contact_link": "https://akira.com.br", "personalized_message": "Olá, pessoal da Akira Eletrônica! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551986131086", "phone_friendly": "+55 (51) 98613-1086", "shop_brand": "Akira Eletrônica", "shop_full_name": "Akira Eletrônica - Praia de Belas", "city": "Porto Alegre", "address": "Av. Padre Cacique, 690 – Praia de Belas, Porto Alegre - RS", "contact_link": "https://akira.com.br", "personalized_message": "Olá, pessoal da Akira Eletrônica! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551980619950", "phone_friendly": "+55 (51) 98061-9950", "shop_brand": "Consertocorp", "shop_full_name": "Consertocorp", "city": "Porto Alegre", "address": "Porto Alegre - RS (Maps/Web)", "contact_link": "https://consertocorp.com.br", "personalized_message": "Olá, pessoal da Consertocorp! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555133561596", "phone_friendly": "+55 (51) 3356-1596", "shop_brand": "PC & GAMES Poa", "shop_full_name": "PC & GAMES Poa", "city": "Porto Alegre", "address": "Av. Assis Brasil, 3704 – Jardim Lindóia, Porto Alegre - RS", "contact_link": "https://instagram.com/pcegamespoa", "personalized_message": "Olá, pessoal da PC & GAMES Poa! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551985145929", "phone_friendly": "+55 (51) 98514-5929", "shop_brand": "S.O.S Games e Informática", "shop_full_name": "S.O.S Games e Informática", "city": "Porto Alegre", "address": "Porto Alegre - RS (Maps/Web)", "contact_link": "https://instagram.com/sosgamespoa", "personalized_message": "Olá, pessoal da S.O.S Games e Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5554991862640", "phone_friendly": "+55 (54) 99186-2640", "shop_brand": "Loja43 Games", "shop_full_name": "Loja43 Games", "city": "Caxias do Sul", "address": "Rua Sinimbú, 2321, Sala 43 (Camelódromo), Centro, Caxias do Sul - RS", "contact_link": "http://loja43games.com.br", "personalized_message": "Olá, pessoal da Loja43 Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Caxias do Sul, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5554996889835", "phone_friendly": "+55 (54) 99688-9835", "shop_brand": "VTEC Games", "shop_full_name": "VTEC Games", "city": "Caxias do Sul", "address": "Rua Dr. Montaury, 1470, Sala 02 - Madureira, Caxias do Sul - RS", "contact_link": "http://vtecgames.com.br", "personalized_message": "Olá, pessoal da VTEC Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Caxias do Sul, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551980656949", "phone_friendly": "+55 (51) 98065-6949", "shop_brand": "BeB Games", "shop_full_name": "BeB Games - Park Shopping Canoas", "city": "Canoas", "address": "Av. Farroupilha, 4545 - Marechal Rondon, Canoas - RS", "contact_link": "https://bebgames.com.br", "personalized_message": "Olá, pessoal da BeB Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Canoas, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551982571590", "phone_friendly": "+55 (51) 98257-1590", "shop_brand": "Roberto Celular", "shop_full_name": "Roberto Celular - Canoas", "city": "Canoas", "address": "Conjunto Comercial Canoas - Centro, Canoas - RS", "contact_link": "https://robertocelular.com.br", "personalized_message": "Olá, pessoal da Roberto Celular! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Canoas, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555330280482", "phone_friendly": "+55 (53) 3028-0482", "shop_brand": "Many Games Eletrônica", "shop_full_name": "Many Games Eletrônica", "city": "Pelotas", "address": "Rua Doutor Frederico Bastos, 175 - Fragata, Pelotas - RS", "contact_link": "https://instagram.com/manygames", "personalized_message": "Olá, pessoal da Many Games Eletrônica! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Pelotas, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555330276308", "phone_friendly": "+55 (53) 3027-6308", "shop_brand": "Oficina do Game Pelotas", "shop_full_name": "Oficina do Game Pelotas", "city": "Pelotas", "address": "R. Barão de Santa Tecla, 365 - Centro, Pelotas - RS", "contact_link": "https://instagram.com/oficinadogamepel", "personalized_message": "Olá, pessoal da Oficina do Game Pelotas! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Pelotas, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5555997252786", "phone_friendly": "+55 (55) 99725-2786", "shop_brand": "Virtual Games", "shop_full_name": "Virtual Games", "city": "Santa Maria", "address": "Rua Venâncio Aires, 1434, Torre Divindade, Sala 106 D-2, Centro, Santa Maria - RS", "contact_link": "http://virtualgames.com.br", "personalized_message": "Olá, pessoal da Virtual Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Santa Maria, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5555991916122", "phone_friendly": "+55 (55) 99191-6122", "shop_brand": "Military Games", "shop_full_name": "Military Games", "city": "Santa Maria", "address": "Santa Maria - RS (Maps/Web)", "contact_link": "https://instagram.com/militarygamessm", "personalized_message": "Olá, pessoal da Military Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Santa Maria, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555532234107", "phone_friendly": "+55 (55) 3223-4107", "shop_brand": "Eletrônica Schmidt", "shop_full_name": "Eletrônica Schmidt", "city": "Santa Maria", "address": "Av. Paulo Lauda, 840 - Tancredo Neves, Santa Maria - RS", "contact_link": "https://instagram.com/eletronicaschmidt", "personalized_message": "Olá, pessoal da Eletrônica Schmidt! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Santa Maria, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5555999229792", "phone_friendly": "+55 (55) 99922-9792", "shop_brand": "Game Center World", "shop_full_name": "Game Center World", "city": "Santa Maria", "address": "Rua dos Andradas, 1522 - Centro, Santa Maria - RS", "contact_link": "https://instagram.com/gamecenterworld", "personalized_message": "Olá, pessoal da Game Center World! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Santa Maria, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551991270993", "phone_friendly": "+55 (51) 99127-0993", "shop_brand": "BeB Games", "shop_full_name": "BeB Games - Gravataí Shopping", "city": "Gravataí", "address": "Av. Centenário, 555 - Passo das Pedras, Gravataí - RS", "contact_link": "https://bebgames.com.br", "personalized_message": "Olá, pessoal da BeB Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Gravataí, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551989281319", "phone_friendly": "+55 (51) 98928-1319", "shop_brand": "Connect Games", "shop_full_name": "Connect Games", "city": "Gravataí", "address": "Av. dos Estados, 984 - Vera Cruz, Gravataí - RS", "contact_link": "https://instagram.com/connectgames", "personalized_message": "Olá, pessoal da Connect Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Gravataí, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551980123658", "phone_friendly": "+55 (51) 98012-3658", "shop_brand": "TSK Informática", "shop_full_name": "TSK Informática (Console/Hardware)", "city": "Gravataí", "address": "Av. Dos Estados, 306, Gravataí - RS", "contact_link": "https://tskinformatica.com.br", "personalized_message": "Olá, pessoal da TSK Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Gravataí, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555130454722", "phone_friendly": "+55 (51) 3045-4722", "shop_brand": "Arena Games", "shop_full_name": "Arena Games", "city": "Viamão", "address": "Av. Walter Jobim, 50, Sala 5 - Santa Isabel, Viamão - RS", "contact_link": "https://instagram.com/arenagamesviamao", "personalized_message": "Olá, pessoal da Arena Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Viamão, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551933007802", "phone_friendly": "+55 (51) 93300-7802", "shop_brand": "JVTEC Informática", "shop_full_name": "JVTEC Informática (Games/Reparos)", "city": "Viamão", "address": "R. das Túias, 82 - Tarumã, Viamão - RS", "contact_link": "https://instagram.com/jvtecpoa", "personalized_message": "Olá, pessoal da JVTEC Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Viamão, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551995377752", "phone_friendly": "+55 (51) 99537-7752", "shop_brand": "Suprint Informática", "shop_full_name": "Suprint Informática (Games/PC)", "city": "Viamão", "address": "Av. Liberdade, 2148 - Santa Isabel, Viamão - RS", "contact_link": "https://suprintinformatica.com.br", "personalized_message": "Olá, pessoal da Suprint Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Viamão, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555135888989", "phone_friendly": "+55 (51) 3588-8989", "shop_brand": "JF Gamestore", "shop_full_name": "JF Gamestore", "city": "São Leopoldo", "address": "São Leopoldo - RS (Maps/Web)", "contact_link": "https://jfgamestore.com.br", "personalized_message": "Olá, pessoal da JF Gamestore! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em São Leopoldo, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551986455457", "phone_friendly": "+55 (51) 98645-5457", "shop_brand": "GameStock São Leopoldo", "shop_full_name": "GameStock São Leopoldo", "city": "São Leopoldo", "address": "São Leopoldo - RS (Maps/Web)", "contact_link": "https://gamestock.com.br", "personalized_message": "Olá, pessoal da GameStock São Leopoldo! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em São Leopoldo, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5553999577608", "phone_friendly": "+55 (53) 99957-7608", "shop_brand": "Play Games", "shop_full_name": "Play Games", "city": "Rio Grande", "address": "Rua Vinte e Quatro de Maio, 614 – Centro, Rio Grande - RS", "contact_link": "https://facebook.com/playgamesrg", "personalized_message": "Olá, pessoal da Play Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Rio Grande, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5554999201289", "phone_friendly": "+55 (54) 99920-1289", "shop_brand": "LZZ Games", "shop_full_name": "LZZ Games", "city": "Passo Fundo", "address": "Rua Fagundes dos Reis, 452 - Loja 06, Centro, Passo Fundo - RS", "contact_link": "http://lzzgames.com", "personalized_message": "Olá, pessoal da LZZ Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Passo Fundo, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5554996548636", "phone_friendly": "+55 (54) 99654-8636", "shop_brand": "Joetech", "shop_full_name": "Joetech – Tecnologia e Games", "city": "Erechim", "address": "Rua Pedro Álvares Cabral, 263 – Centro, Erechim - RS", "contact_link": "http://joetech.com.br", "personalized_message": "Olá, pessoal da Joetech! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Erechim, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555437125069", "phone_friendly": "+55 (54) 3712-5069", "shop_brand": "Conserta Smart Erechim", "shop_full_name": "Conserta Smart Erechim", "city": "Erechim", "address": "Rua Rui Barbosa, 158, Centro – Erechim - RS", "contact_link": "https://consertasmart.com", "personalized_message": "Olá, pessoal da Conserta Smart Erechim! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Erechim, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555533331636", "phone_friendly": "+55 (55) 3333-1636", "shop_brand": "Pró Informática", "shop_full_name": "Pró Informática", "city": "Ijuí", "address": "Ijuí - RS (Maps/Web)", "contact_link": "http://proinformaticaijui.com.br", "personalized_message": "Olá, pessoal da Pró Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Ijuí, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5555996604406", "phone_friendly": "+55 (55) 99660-4406", "shop_brand": "Bhalle Informática e Celular", "shop_full_name": "Bhalle Informática e Celular", "city": "Ijuí", "address": "Rua Benjamin Constant, 385 – Centro, Ijuí - RS", "contact_link": "https://instagram.com/bhalleinformica", "personalized_message": "Olá, pessoal da Bhalle Informática e Celular! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Ijuí, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551998593539", "phone_friendly": "+55 (51) 99859-3539", "shop_brand": "Olhada Tec Repair", "shop_full_name": "Olhada Tec Repair", "city": "Lajeado", "address": "BR-386, KM 346, nº 2839 (Shopping Lajeado, Subsolo, sala 87) – São Cristóvão, Lajeado - RS", "contact_link": "http://olhadatec.com.br", "personalized_message": "Olá, pessoal da Olhada Tec Repair! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Lajeado, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551996604996", "phone_friendly": "+55 (51) 99660-4996", "shop_brand": "EletroGames", "shop_full_name": "EletroGames", "city": "Lajeado", "address": "Av. Benjamin Constant, 1583, Sala 105 - Centro, Lajeado - RS", "contact_link": "https://lojaeletrogames.net", "personalized_message": "Olá, pessoal da EletroGames! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Lajeado, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551981376112", "phone_friendly": "+55 (51) 98137-6112", "shop_brand": "Interactive Gamestore", "shop_full_name": "Interactive Gamestore", "city": "Sapucaia do Sul", "address": "Rua Capitão Camboim, 191 - Centro, Sapucaia do Sul - RS", "contact_link": "https://interactivegamestore.com.br", "personalized_message": "Olá, pessoal da Interactive Gamestore! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Sapucaia do Sul, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5555999864448", "phone_friendly": "+55 (55) 99986-4448", "shop_brand": "M-Tech Informática", "shop_full_name": "M-Tech Informática", "city": "Alegrete", "address": "Alegrete - RS (Maps/Web)", "contact_link": "https://mtechinformaticars.com.br", "personalized_message": "Olá, pessoal da M-Tech Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Alegrete, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5555996467969", "phone_friendly": "+55 (55) 99646-7969", "shop_brand": "Pop Informática", "shop_full_name": "Pop Informática", "city": "Alegrete", "address": "Alegrete - RS (Maps/Web)", "contact_link": "https://popinformatica.com.br", "personalized_message": "Olá, pessoal da Pop Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Alegrete, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5555991340750", "phone_friendly": "+55 (55) 99134-0750", "shop_brand": "Loja Kako's", "shop_full_name": "Loja Kako's", "city": "Cruz Alta", "address": "Cruz Alta - RS (Maps/Web)", "contact_link": "https://instagram.com/kakosgames", "personalized_message": "Olá, pessoal da Loja Kako's! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Cruz Alta, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5555991345980", "phone_friendly": "+55 (55) 99134-5980", "shop_brand": "Multitec Assistência Técnica", "shop_full_name": "Multitec Assistência Técnica", "city": "Cruz Alta", "address": "Cruz Alta - RS (Maps/Web)", "contact_link": "https://instagram.com/multiteccruzalta", "personalized_message": "Olá, pessoal da Multitec Assistência Técnica! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Cruz Alta, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551995676550", "phone_friendly": "+55 (51) 99567-6550", "shop_brand": "Help Informática", "shop_full_name": "Help Informática", "city": "Montenegro", "address": "Av. Júlio Renner, 2526, sala 2 - Bairro Timbaúva, Montenegro - RS", "contact_link": "https://instagram.com/helpinformatica", "personalized_message": "Olá, pessoal da Help Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Montenegro, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5554992126300", "phone_friendly": "+55 (54) 99212-6300", "shop_brand": "Historic Games", "shop_full_name": "Historic Games", "city": "Vacaria", "address": "Rua Marechal Floriano, 22 - Sala 3, Centro, Vacaria - RS", "contact_link": "https://instagram.com/historicgames", "personalized_message": "Olá, pessoal da Historic Games! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Vacaria, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5555996961683", "phone_friendly": "+55 (55) 99696-1683", "shop_brand": "N R Soluções em Informática", "shop_full_name": "N R Soluções em Informática", "city": "São Borja", "address": "São Borja - RS (Maps/Web)", "contact_link": "https://nrinformatica-rs.com.br", "personalized_message": "Olá, pessoal da N R Soluções em Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em São Borja, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555432862262", "phone_friendly": "+55 (54) 3286-2262", "shop_brand": "AV Informática", "shop_full_name": "AV Informática", "city": "Gramado", "address": "Rua Ernesto Volk, 190 – Minuano, Gramado - RS", "contact_link": "https://avinformatica.com.br", "personalized_message": "Olá, pessoal da AV Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Gramado, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5554996494514", "phone_friendly": "+55 (54) 99649-4514", "shop_brand": "Infolab Canela", "shop_full_name": "Infolab Canela", "city": "Canela", "address": "Rua João Pessoa, 105, Loja 1 - Centro, Canela - RS", "contact_link": "https://instagram.com/infolabcanela", "personalized_message": "Olá, pessoal da Infolab Canela! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Canela, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5554999373591", "phone_friendly": "+55 (54) 99937-3591", "shop_brand": "TecnoLife", "shop_full_name": "TecnoLife", "city": "Canela", "address": "Canela - RS (Maps/Web)", "contact_link": "https://tecnolifers.com.br", "personalized_message": "Olá, pessoal da TecnoLife! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Canela, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555432814464", "phone_friendly": "+55 (54) 3281-4464", "shop_brand": "JC Informática", "shop_full_name": "JC Informática", "city": "Nova Petrópolis", "address": "Av. 15 de Novembro, 1540, Sala 110 - Centro, Nova Petrópolis - RS", "contact_link": "https://jcinformatica.net.br", "personalized_message": "Olá, pessoal da JC Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Nova Petrópolis, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5554981571128", "phone_friendly": "+55 (54) 98157-1128", "shop_brand": "Tecnohaus Informática", "shop_full_name": "Tecnohaus Informática", "city": "Nova Petrópolis", "address": "Rua Frederico Michaelsen, 188, Sala 02 - Centro, Nova Petrópolis - RS", "contact_link": "https://instagram.com/tecnohausnp", "personalized_message": "Olá, pessoal da Tecnohaus Informática! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Nova Petrópolis, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551997382441", "phone_friendly": "+55 (51) 99738-2441", "shop_brand": "Conser TEC", "shop_full_name": "Conser TEC", "city": "Camaquã", "address": "Camaquã - RS (Maps/Web)", "contact_link": "https://instagram.com/consertec", "personalized_message": "Olá, pessoal da Conser TEC! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Camaquã, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555136711548", "phone_friendly": "+55 (51) 3671-1548", "shop_brand": "Eletrônica Digitec", "shop_full_name": "Eletrônica Digitec", "city": "Camaquã", "address": "Rua Cristóvão Gomes de Andrade, 1058 - Centro, Camaquã - RS", "contact_link": "https://instagram.com/eletronicadigitec", "personalized_message": "Olá, pessoal da Eletrônica Digitec! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Camaquã, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551984293089", "phone_friendly": "+55 (51) 98429-3089", "shop_brand": "Cricell Taquara", "shop_full_name": "Cricell Taquara", "city": "Taquara", "address": "R. Júlio de Castilhos, 2409 - Centro, Taquara - RS", "contact_link": "https://cricell.com.br", "personalized_message": "Olá, pessoal da Cricell Taquara! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Taquara, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551996604018", "phone_friendly": "+55 (51) 99660-4018", "shop_brand": "Cricell Parobé", "shop_full_name": "Cricell Parobé", "city": "Parobé", "address": "R. Odorico Mosmann, 451 - Centro, Parobé - RS", "contact_link": "https://cricell.com.br", "personalized_message": "Olá, pessoal da Cricell Parobé! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Parobé, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555135436768", "phone_friendly": "+55 (51) 3543-6768", "shop_brand": "MasterShop Games & Eletrônicos", "shop_full_name": "MasterShop Games & Eletrônicos", "city": "Igrejinha", "address": "Av. Pres. Castelo Branco, 465 - Centro, Igrejinha - RS", "contact_link": "https://instagram.com/mastershopigrejinha", "personalized_message": "Olá, pessoal da MasterShop Games & Eletrônicos! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Igrejinha, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555141040694", "phone_friendly": "+55 (51) 4104-0694", "shop_brand": "martecinfo.com.brMartec Info", "shop_full_name": "martecinfo.com.brMartec Info", "city": "Canoas", "address": "Consulte o site/rede social em Canoas - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrhbV751xNqSgIAaZjz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzIEdnRpZAMEc2VjA3Ny/RV=2/RE=1780894969/RO=10/RU=https%3a%2f%2fmartecinfo.com.br%2f/RK=2/RS=41tnr6An3phr6DLsvIUW2QQWivk-", "personalized_message": "Olá, pessoal da martecinfo.com.brMartec Info! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Canoas, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551996747500", "phone_friendly": "+55 (51) 99674-7500", "shop_brand": "www.facebook.com hubHub Canoas", "shop_full_name": "www.facebook.com hubHub Canoas", "city": "Canoas", "address": "Consulte o site/rede social em Canoas - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrhbV751xNqSgIAbJjz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzUEdnRpZAMEc2VjA3Ny/RV=2/RE=1780894969/RO=10/RU=https%3a%2f%2fwww.facebook.com%2fhubgames.canoas%2f/RK=2/RS=V9PqMGk6PxDPNn4bXqSzXay0c78-", "personalized_message": "Olá, pessoal da www.facebook.com hubHub Canoas! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Canoas, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551990030368", "phone_friendly": "+55 (51) 99003-0368", "shop_brand": "eletrodomestico.com.br servico rs", "shop_full_name": "eletrodomestico.com.br servico rs", "city": "Santa Maria", "address": "Consulte o site/rede social em Santa Maria - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrFclb_1xNqOAIALPbz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzUEdnRpZAMEc2VjA3Ny/RV=2/RE=1780894976/RO=10/RU=https%3a%2f%2fconsertoeletrodomestico.com.br%2fservico%2frs%2fsanta_maria%2fassistencia_tecnica_xbox/RK=2/RS=FvERAbU9ofCsvS5u.dOZG4UopYY-", "personalized_message": "Olá, pessoal da eletrodomestico.com.br servico rs! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Santa Maria, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "554612048503", "phone_friendly": "+55 (46) 1204-8503", "shop_brand": "www.facebook.com cybernh_-104612048503415Cyber", "shop_full_name": "www.facebook.com cybernh_-104612048503415Cyber", "city": "Novo Hamburgo", "address": "Consulte o site/rede social em Novo Hamburgo - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrEIQ0P2BNqSQIAsozz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzMEdnRpZAMEc2VjA3Ny/RV=2/RE=1780894991/RO=10/RU=https%3a%2f%2fwww.facebook.com%2fcybergamesnh_-104612048503415%2f/RK=2/RS=6uQJmUZs33wVHrFRgfvgG0nVPY8-", "personalized_message": "Olá, pessoal da www.facebook.com cybernh_-104612048503415Cyber! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Novo Hamburgo, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555430457796", "phone_friendly": "+55 (54) 3045-7796", "shop_brand": "www.cylex.com.brpasso-fundo az-assistênciaAZ", "shop_full_name": "www.cylex.com.brpasso-fundo az-assistênciaAZ", "city": "Passo Fundo", "address": "Consulte o site/rede social em Passo Fundo - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrEmEUc2BNqLQIAiubz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzMEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895004/RO=10/RU=https%3a%2f%2fwww.cylex.com.br%2fpasso-fundo%2faz-assist%25C3%25AAncia-t%25C3%25A9cnica-de-video-game-passo-fundo-aldino-zortea-f-3045-7796-11783024.html/RK=2/RS=lPodbyBkq2ZirHRgYU96SJFY8Eo-", "personalized_message": "Olá, pessoal da www.cylex.com.brpasso-fundo az-assistênciaAZ! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Passo Fundo, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "559736051500", "phone_friendly": "+55 (97) 3605-1500", "shop_brand": "cnpj.biz 97360515000134Cs  97360515000134 Santa Cruz do Sul", "shop_full_name": "cnpj.biz 97360515000134Cs  97360515000134 Santa Cruz do Sul", "city": "Santa Cruz do Sul", "address": "Consulte o site/rede social em Santa Cruz do Sul - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrFOvco2BNqEwIAEVbz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzQEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895017/RO=10/RU=https%3a%2f%2fcnpj.biz%2f97360515000134/RK=2/RS=qopz0Jcd5HLWKVm6FlJlK.v0uFY-", "personalized_message": "Olá, pessoal da cnpj.biz 97360515000134Cs  97360515000134 Santa Cruz do Sul! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Santa Cruz do Sul, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555421065406", "phone_friendly": "+55 (54) 2106-5406", "shop_brand": "www.instagram.com lojajoetechJOETECH", "shop_full_name": "www.instagram.com lojajoetechJOETECH", "city": "Erechim", "address": "Consulte o site/rede social em Erechim - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrFPhMt2BNqawIAsQ_z6Qt.;_ylu=Y29sbwNiZjEEcG9zAzIEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895021/RO=10/RU=https%3a%2f%2fwww.instagram.com%2flojajoetech%2f/RK=2/RS=dHTHbFzLrbLfl9TeTBG3gx4SDZU-", "personalized_message": "Olá, pessoal da www.instagram.com lojajoetechJOETECH! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Erechim, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "556157921301", "phone_friendly": "+55 (61) 5792-1301", "shop_brand": "www.facebook.com 61579213019509Joe", "shop_full_name": "www.facebook.com 61579213019509Joe", "city": "Erechim", "address": "Consulte o site/rede social em Erechim - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrFPhMt2BNqawIAsg_z6Qt.;_ylu=Y29sbwNiZjEEcG9zAzMEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895021/RO=10/RU=https%3a%2f%2fwww.facebook.com%2f61579213019509%2f/RK=2/RS=tHTVdW1dOXvMxVUlLdY5.GCfr6o-", "personalized_message": "Olá, pessoal da www.facebook.com 61579213019509Joe! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Erechim, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5553997000895", "phone_friendly": "+55 (53) 99700-0895", "shop_brand": "www.instagram.com centertechbgCENTER TECH", "shop_full_name": "www.instagram.com centertechbgCENTER TECH", "city": "Bagé", "address": "Consulte o site/rede social em Bagé - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrEsWM62BNqhwIAjebz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzYEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895034/RO=10/RU=https%3a%2f%2fwww.instagram.com%2fcentertechbg%2f/RK=2/RS=PLCmC5i7Qbzf.0DA3pVEhr2gHI8-", "personalized_message": "Olá, pessoal da www.instagram.com centertechbgCENTER TECH! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Bagé, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551997617045", "phone_friendly": "+55 (51) 99761-7045", "shop_brand": "br.todosnegocios.com pt  aef--e-eletronicosAeF  e eletronicos", "shop_full_name": "br.todosnegocios.com pt  aef--e-eletronicosAeF  e eletronicos", "city": "Sapucaia do Sul", "address": "Consulte o site/rede social em Sapucaia do Sul - RS", "contact_link": "https://r.search.yahoo.com/_ylt=Awrils5H2BNqQgMAo.Lz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzQEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895048/RO=10/RU=https%3a%2f%2fbr.todosnegocios.com%2fpt%2faef-games-e-eletronicos-51-99761-7045/RK=2/RS=vKwOS1TixLwx.d0XxKIReOOnvac-", "personalized_message": "Olá, pessoal da br.todosnegocios.com pt  aef--e-eletronicosAeF  e eletronicos! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Sapucaia do Sul, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5554984224502", "phone_friendly": "+55 (54) 98422-4502", "shop_brand": "www.instagram.com smartcell_vacariaSmart Cell @smartcell_vacaria  Instagram photos and videos", "shop_full_name": "www.instagram.com smartcell_vacariaSmart Cell @smartcell_vacaria  Instagram photos and videos", "city": "Vacaria", "address": "Consulte o site/rede social em Vacaria - RS", "contact_link": "https://r.search.yahoo.com/_ylt=Awrheshs2BNqawIAzgvz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzcEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895084/RO=10/RU=https%3a%2f%2fwww.instagram.com%2fsmartcell_vacaria%2f/RK=2/RS=XdzMxYi5UlPUJzyOnufBgRHap_c-", "personalized_message": "Olá, pessoal da www.instagram.com smartcell_vacariaSmart Cell @smartcell_vacaria  Instagram photos and videos! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Vacaria, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551980545810", "phone_friendly": "+55 (51) 98054-5810", "shop_brand": "www.guiacampobom.com.br", "shop_full_name": "www.guiacampobom.com.br", "city": "Campo Bom", "address": "Consulte o site/rede social em Campo Bom - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrFNft22BNqFwIAE_rz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzQEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895094/RO=10/RU=https%3a%2f%2fwww.guiacampobom.com.br%2f%3fs%3dassist%25EAncia%2520t%25E9cnica/RK=2/RS=6s0cNiGtVnpzf5_AfMFCC2Oaqes-", "personalized_message": "Olá, pessoal da www.guiacampobom.com.br! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Campo Bom, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "558332201549", "phone_friendly": "+55 (83) 3220-1549", "shop_brand": "www.facebook.com 100083322015496Loja Connect Acessórios", "shop_full_name": "www.facebook.com 100083322015496Loja Connect Acessórios", "city": "Osório", "address": "Consulte o site/rede social em Osório - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrhWNaB2BNqRAIAqLfz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzEEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895106/RO=10/RU=https%3a%2f%2fwww.facebook.com%2f100083322015496%2f/RK=2/RS=ieR8kr9H4wbgrN8XA2gBzkIQ_K0-", "personalized_message": "Olá, pessoal da www.facebook.com 100083322015496Loja Connect Acessórios! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Osório, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551991610773", "phone_friendly": "+55 (51) 99161-0773", "shop_brand": "www.instagram.com playcenterrsPlay Center  @playcenterrs", "shop_full_name": "www.instagram.com playcenterrsPlay Center  @playcenterrs", "city": "Tramandaí", "address": "Consulte o site/rede social em Tramandaí - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrFclaM2BNqSQIAxDbz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzQEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895116/RO=10/RU=https%3a%2f%2fwww.instagram.com%2fplaycentergamesrs%2f/RK=2/RS=sUL8HyqYBAwjclqeka4nOjARXz8-", "personalized_message": "Olá, pessoal da www.instagram.com playcenterrsPlay Center  @playcenterrs! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Tramandaí, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551992282426", "phone_friendly": "+55 (51) 99228-2426", "shop_brand": "www.youtube.com @jztecheinformatica922Jz Tech  e informatica", "shop_full_name": "www.youtube.com @jztecheinformatica922Jz Tech  e informatica", "city": "Tramandaí", "address": "Encontrado via guia local (Tramandaí - RS)", "contact_link": "https://r.search.yahoo.com/_ylt=AwrFclaM2BNqSQIAxjbz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzYEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895116/RO=10/RU=https%3a%2f%2fwww.youtube.com%2f%40jztechgameseinformatica922/RK=2/RS=xernn1ls4Kip6Zv2deWjPj.BNdU-", "personalized_message": "Olá, pessoal da www.youtube.com @jztecheinformatica922Jz Tech  e informatica! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Tramandaí, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "555186278810", "phone_friendly": "+55 (51) 8627-8810", "shop_brand": "www.facebook.com eletronicanovatramandaiEletrônica Nova Tramandaí", "shop_full_name": "www.facebook.com eletronicanovatramandaiEletrônica Nova Tramandaí", "city": "Tramandaí", "address": "Consulte o site/rede social em Tramandaí - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrFclaM2BNqSQIAxzbz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzcEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895116/RO=10/RU=https%3a%2f%2fwww.facebook.com%2feletronicanovatramandai%2fdirectory_contact_info%2f/RK=2/RS=RSPaBTgpREZ_JZshsZVXCezRzP8-", "personalized_message": "Olá, pessoal da www.facebook.com eletronicanovatramandaiEletrônica Nova Tramandaí! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Tramandaí, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5554996322211", "phone_friendly": "+55 (54) 99632-2211", "shop_brand": "br.todosnegocios.com pt  simionato-assistênciaSimionato", "shop_full_name": "br.todosnegocios.com pt  simionato-assistênciaSimionato", "city": "Flores da Cunha", "address": "Consulte o site/rede social em Flores da Cunha - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrErMed2BNqVAIAFn3z6Qt.;_ylu=Y29sbwNiZjEEcG9zAzcEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895134/RO=10/RU=https%3a%2f%2fbr.todosnegocios.com%2fpt%2fsimionato-assist%25C3%25AAncia-t%25C3%25A9cnica-54-99632-2211/RK=2/RS=P49RadoCUK7DilZylgikwRuuDOc-", "personalized_message": "Olá, pessoal da br.todosnegocios.com pt  simionato-assistênciaSimionato! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Flores da Cunha, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "556155463460", "phone_friendly": "+55 (61) 5546-3460", "shop_brand": "www.facebook.com 61554634607216Fanna", "shop_full_name": "www.facebook.com 61554634607216Fanna", "city": "Camaquã", "address": "Consulte o site/rede social em Camaquã - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrFOvem2BNqNQIA3DLz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzUEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895142/RO=10/RU=https%3a%2f%2fwww.facebook.com%2f61554634607216%2f/RK=2/RS=F71rmSrScLsAJvkdaHhaZoAUJ_0-", "personalized_message": "Olá, pessoal da www.facebook.com 61554634607216Fanna! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Camaquã, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5553999004784", "phone_friendly": "+55 (53) 99900-4784", "shop_brand": "br.todosnegocios.com pt  falcão-assistênciaFalcão", "shop_full_name": "br.todosnegocios.com pt  falcão-assistênciaFalcão", "city": "Dom Pedrito", "address": "Consulte o site/rede social em Dom Pedrito - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrEbZWw2BNqgwIACIHz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzYEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895152/RO=10/RU=https%3a%2f%2fbr.todosnegocios.com%2fpt%2ffalc%25C3%25A3o-assist%25C3%25AAncia-t%25C3%25A9cnica-53-99900-4784/RK=2/RS=Y5vUWtICOVv7Xqxcttmf2cAOWBE-", "personalized_message": "Olá, pessoal da br.todosnegocios.com pt  falcão-assistênciaFalcão! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Dom Pedrito, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5555996457107", "phone_friendly": "+55 (55) 99645-7107", "shop_brand": "br.todosnegocios.com pt  mania-das-capasMania das Capas-", "shop_full_name": "br.todosnegocios.com pt  mania-das-capasMania das Capas-", "city": "Frederico Westphalen", "address": "Consulte o site/rede social em Frederico Westphalen - RS", "contact_link": "https://r.search.yahoo.com/_ylt=AwrFNfu72BNqOQIA3jLz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzcEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895163/RO=10/RU=https%3a%2f%2fbr.todosnegocios.com%2fpt%2fmania-das-capas-assist%25C3%25AAncia-t%25C3%25A9cnica-55-99645-7107/RK=2/RS=Fo1UxP2JX4beAOVqNRraNV2y4Ak-", "personalized_message": "Olá, pessoal da br.todosnegocios.com pt  mania-das-capasMania das Capas-! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Frederico Westphalen, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "558920925975", "phone_friendly": "+55 (89) 2092-5975", "shop_brand": "[Especialista] www..com groups  892092597532807Troca De Jogos PS3PS4PS5- RS", "shop_full_name": "[Especialista] www..com groups  892092597532807Troca De Jogos PS3PS4PS5- RS", "city": "Canoas", "address": "Especialista em Placa/Modchips (Canoas - RS)", "contact_link": "https://r.search.yahoo.com/_ylt=AwrijYgp2RNq.wIAuQ_z6Qt.;_ylu=Y29sbwNiZjEEcG9zAzIEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895274/RO=10/RU=https%3a%2f%2fwww.facebook.com%2fgroups%2f892092597532807%2f/RK=2/RS=HOwZrVznWeecFm9PQOwpLLjv0XI-", "personalized_message": "Olá, pessoal da [Especialista] www..com groups  892092597532807Troca De Jogos PS3PS4PS5- RS! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Canoas, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "551876632892", "phone_friendly": "+55 (18) 7663-2892", "shop_brand": "[Especialista] produto.mercadolivre.com.br MLB-1876632892-kitKit Volante C Pedais Thrustmaster T150 Rs Pro Ps5 Ps43 Pc", "shop_full_name": "[Especialista] produto.mercadolivre.com.br MLB-1876632892-kitKit Volante C Pedais Thrustmaster T150 Rs Pro Ps5 Ps43 Pc", "city": "Porto Alegre", "address": "Especialista em Placa/Modchips (Porto Alegre - RS)", "contact_link": "https://r.search.yahoo.com/_ylt=AwrijYgp2RNq.wIAwg_z6Qt.;_ylu=Y29sbwNiZjEEcG9zAzYEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895274/RO=10/RU=https%3a%2f%2fproduto.mercadolivre.com.br%2fMLB-1876632892-kit-volante-c-pedais-thrustmaster-t150-rs-pro-ps5-ps43-pc-_JM/RK=2/RS=LUDlsLxkXa0xSka2hTaUuYE6VQM-", "personalized_message": "Olá, pessoal da [Especialista] produto.mercadolivre.com.br MLB-1876632892-kitKit Volante C Pedais Thrustmaster T150 Rs Pro Ps5 Ps43 Pc! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}, {"phone_digits": "5551998435101", "phone_friendly": "+55 (51) 99843-5101", "shop_brand": "[Especialista] eletrodomestico.com.br servico rs Monitor em Porto Alegre 51 99843-5101", "shop_full_name": "[Especialista] eletrodomestico.com.br servico rs Monitor em Porto Alegre 51 99843-5101", "city": "Porto Alegre", "address": "Especialista em Placa/Modchips (Porto Alegre - RS)", "contact_link": "https://r.search.yahoo.com/_ylt=Awriht4r2RNqBQMACVbz6Qt.;_ylu=Y29sbwNiZjEEcG9zAzQEdnRpZAMEc2VjA3Ny/RV=2/RE=1780895275/RO=10/RU=https%3a%2f%2fconsertoeletrodomestico.com.br%2fservico%2frs%2fporto_alegre%2fconserto_de_monitor/RK=2/RS=S9.cbfDa_DlFTCsrKANagtJrXis-", "personalized_message": "Olá, pessoal da [Especialista] eletrodomestico.com.br servico rs Monitor em Porto Alegre 51 99843-5101! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em Porto Alegre, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!"}];
+
+        // Template Inicial Padrão de Abordagem Comercial
+        const DEFAULT_TEMPLATE = "Olá, pessoal da {{shop_brand}}! Tudo bem?\n\nMe chamo Luciano Miranda e sou da Lógos Play! 🎮\n\nNós fornecemos peças premium de reposição para consoles com foco em parceiros aqui do RS. Temos estoque a pronta entrega de chips HWFLY para Switch, displays, analógicos Hall Effect/TMR, CIs de HDMI e películas de PS4/PS5.\n\nComo vocês são referência aí em {{city}}, posso te enviar nosso catálogo de Março/2026 em PDF com a tabela de preços especiais de atacado?\n\nUm abraço!";
+
+        // Estado do Aplicativo
+        let activeLeadIndex = -1;
+        let crmStatuses = {}; // Sincronizado online
+        const DATABASE_APP_KEY = "63tt85td";
+
+        // Utilitários de Codificação Base64 Segura para URLs
+        function encodeB64(str) {
+            return btoa(unescape(encodeURIComponent(str))).replace(/=/g, '');
+        }
+
+        function decodeB64(str) {
+            let padded = str;
+            while (padded.length % 4) padded += '=';
+            try {
+                return decodeURIComponent(escape(atob(padded)));
+            } catch(e) {
+                console.error("Erro ao decodificar Base64:", e);
+                return "{}";
+            }
+        }
+
+        // Ao Carregar a Página
+        window.addEventListener('DOMContentLoaded', async () => {
+            initializeCityFilter();
+            loadTemplate();
+            await loadCRMStatuses(); // Carrega os status online de forma assíncrona
+            renderTable();
+            updateKPIs();
+            
+            // Seleciona primeiro lead da tabela se houver
+            if (LEADS_DATA.length > 0) {
+                selectLead(0);
+            }
+        });
+
+        // Carrega o status do banco de dados online agrupado por cidade
+        async function loadCRMStatuses() {
+            crmStatuses = {};
+            let hasOnlineData = false;
+            
+            const cities = [...new Set(LEADS_DATA.map(l => l.city))];
+            
+            // Tenta carregar do banco online para todas as cidades em paralelo
+            try {
+                const promises = cities.map(async (city) => {
+                    const slug = city.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                    try {
+                        const res = await fetch(`https://keyvalue.immanuel.co/api/KeyVal/GetValue/${DATABASE_APP_KEY}/city_${slug}`);
+                        if (res.ok) {
+                            const b64 = (await res.text()).trim().replace(/"/g, '');
+                            if (b64 && b64 !== "null") {
+                                const jsonStr = decodeB64(b64);
+                                const parsed = JSON.parse(jsonStr);
+                                return { city, parsed };
+                            }
+                        }
+                    } catch(e) {}
+                    return { city, parsed: null };
+                });
+                
+                const results = await Promise.all(promises);
+                
+                results.forEach(({ parsed }) => {
+                    if (parsed && typeof parsed === 'object') {
+                        hasOnlineData = true;
+                        Object.keys(parsed).forEach(phone => {
+                            const code = parsed[phone];
+                            if (code === 1) crmStatuses[phone] = "Contatado";
+                            else if (code === 2) crmStatuses[phone] = "Sucesso";
+                            else if (code === 3) crmStatuses[phone] = "Sem Interesse";
+                            else if (code === 4) crmStatuses[phone] = "Não existe";
+                            else if (code === 5) crmStatuses[phone] = "Já é cliente";
+                            else if (code === 6) crmStatuses[phone] = "Não conserta games";
+                            else if (code === 7) crmStatuses[phone] = "Terceriza";
+                        });
+                    }
+                });
+            } catch(e) {
+                console.error("Erro ao conectar com banco online, usando backup local:", e);
+            }
+
+            // Se o carregamento online falhou, usa o backup do LocalStorage local
+            if (!hasOnlineData) {
+                const stored = localStorage.getItem('whatsapp_crm_statuses');
+                if (stored) {
+                    try {
+                        const localParsed = JSON.parse(stored);
+                        if (localParsed && typeof localParsed === 'object') {
+                            crmStatuses = localParsed;
+                        }
+                    } catch(e) {}
+                }
+            }
+            
+            // Garante que todo lead tenha ao menos o status "Pendente" definido
+            LEADS_DATA.forEach((lead) => {
+                if (!crmStatuses[lead.phone_digits]) {
+                    crmStatuses[lead.phone_digits] = "Pendente";
+                }
+            });
+            
+            // Salva backup local
+            localStorage.setItem('whatsapp_crm_statuses', JSON.stringify(crmStatuses));
+        }
+
+        async function saveCRMStatuses(phoneDigits) {
+            // Salva no backup local imediatamente
+            localStorage.setItem('whatsapp_crm_statuses', JSON.stringify(crmStatuses));
+
+            if (phoneDigits) {
+                // Encontra a cidade desse lead especificamente para salvar apenas ela
+                const lead = LEADS_DATA.find(l => l.phone_digits === phoneDigits);
+                if (lead) {
+                    await saveCityStatuses(lead.city);
+                }
+            } else {
+                // Caso geral (ex: reset): salva todas as cidades
+                const cities = [...new Set(LEADS_DATA.map(l => l.city))];
+                for (const city of cities) {
+                    await saveCityStatuses(city);
+                }
+            }
+        }
+
+        async function saveCityStatuses(city) {
+            const cityLeads = LEADS_DATA.filter(l => l.city === city);
+            const compact = {};
+            cityLeads.forEach(l => {
+                const status = crmStatuses[l.phone_digits];
+                if (status === "Contatado") compact[l.phone_digits] = 1;
+                else if (status === "Sucesso") compact[l.phone_digits] = 2;
+                else if (status === "Sem Interesse") compact[l.phone_digits] = 3;
+                else if (status === "Não existe") compact[l.phone_digits] = 4;
+                else if (status === "Já é cliente") compact[l.phone_digits] = 5;
+                else if (status === "Não conserta games") compact[l.phone_digits] = 6;
+                else if (status === "Terceriza") compact[l.phone_digits] = 7;
+            });
+
+            const b64Val = encodeB64(JSON.stringify(compact));
+            const slug = city.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+            try {
+                fetch(`https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${DATABASE_APP_KEY}/city_${slug}/${b64Val}`, {
+                    method: 'POST'
+                });
+            } catch(e) {
+                console.error(`Erro ao enviar dados da cidade ${city} para banco online:`, e);
+            }
+        }
+
+        // Inicializa o Filtro de Cidades
+        function initializeCityFilter() {
+            const cities = [...new Set(LEADS_DATA.map(l => l.city))].sort();
+            const select = document.getElementById('city-select');
+            cities.forEach(city => {
+                const opt = document.createElement('option');
+                opt.value = city;
+                opt.textContent = city;
+                select.appendChild(opt);
+            });
+        }
+
+        // Carrega o template padrão ou o salvo no localStorage
+        function loadTemplate() {
+            let savedTemplate = localStorage.getItem('whatsapp_msg_template');
+            if (savedTemplate) {
+                let updated = false;
+                // Se o template antigo do Julio ainda estiver no cache, atualiza automaticamente de forma robusta!
+                if (/Julio\s+Flores/i.test(savedTemplate)) {
+                    savedTemplate = savedTemplate.replace(/Julio\s+Flores/ig, "Luciano Miranda");
+                    updated = true;
+                }
+                if (/Julio/i.test(savedTemplate)) {
+                    savedTemplate = savedTemplate.replace(/Julio/ig, "Luciano");
+                    updated = true;
+                }
+                if (/Flores/i.test(savedTemplate)) {
+                    savedTemplate = savedTemplate.replace(/Flores/ig, "Miranda");
+                    updated = true;
+                }
+                if (updated) {
+                    localStorage.setItem('whatsapp_msg_template', savedTemplate);
+                }
+            }
+            document.getElementById('template-text').value = savedTemplate ? savedTemplate : DEFAULT_TEMPLATE;
+        }
+
+        function saveTemplate(text) {
+            localStorage.setItem('whatsapp_msg_template', text);
+        }
+
+        // Atualiza os Cards de KPIs
+        function updateKPIs() {
+            const total = LEADS_DATA.length;
+            let pending = 0;
+            let sent = 0;
+            let success = 0;
+
+            LEADS_DATA.forEach(lead => {
+                const status = crmStatuses[lead.phone_digits] || "Pendente";
+                if (status === "Pendente") pending++;
+                else if (status === "Contatado") sent++;
+                else if (status === "Sucesso") success++;
+            });
+
+            document.getElementById('kpi-total').textContent = total;
+            document.getElementById('kpi-pending').textContent = pending;
+            document.getElementById('kpi-sent').textContent = sent;
+            document.getElementById('kpi-success').textContent = success;
+        }
+
+        // Renderiza a Tabela de Leads
+        function renderTable() {
+            const tbody = document.getElementById('leads-table-body');
+            tbody.innerHTML = '';
+
+            const searchQuery = document.getElementById('search-input').value.toLowerCase();
+            const selectedCity = document.getElementById('city-select').value;
+            const selectedStatus = document.getElementById('status-filter').value;
+
+            LEADS_DATA.forEach((lead, index) => {
+                // Filtros
+                const matchesSearch = lead.shop_full_name.toLowerCase().includes(searchQuery) || 
+                                      lead.city.toLowerCase().includes(searchQuery) ||
+                                      lead.phone_friendly.includes(searchQuery);
+                const matchesCity = !selectedCity || lead.city === selectedCity;
+                
+                const status = crmStatuses[lead.phone_digits] || "Pendente";
+                const matchesStatus = !selectedStatus || status === selectedStatus;
+
+                if (matchesSearch && matchesCity && matchesStatus) {
+                    const tr = document.createElement('tr');
+                    if (index === activeLeadIndex) {
+                        tr.className = 'active-row';
+                    }
+                    
+                    tr.onclick = (e) => {
+                        // Evita acionar clique na linha ao mudar o select de status
+                        if (e.target.tagName !== 'SELECT') {
+                            selectLead(index);
+                        }
+                    };
+
+                    // Define classe de cor do select
+                    let selectClass = 'pending';
+                    if (status === 'Contatado') selectClass = 'sent';
+                    else if (status === 'Sem Interesse') selectClass = 'nointerest';
+                    else if (status === 'Sucesso') selectClass = 'success';
+                    else if (status === 'Não existe') selectClass = 'notexists';
+                    else if (status === 'Já é cliente') selectClass = 'alreadyclient';
+                    else if (status === 'Não conserta games') selectClass = 'nogames';
+                    else if (status === 'Terceriza') selectClass = 'outsources';
+
+                    tr.innerHTML = `
+                        <td>
+                            <div class="lead-name-container">
+                                <span class="lead-name">${lead.shop_brand}</span>
+                                <span class="lead-city">📍 ${lead.city}</span>
+                            </div>
+                        </td>
+                        <td style="font-weight: 500; font-family: monospace; color: #a7f3d0;">
+                            ${lead.phone_friendly}
+                        </td>
+                        <td>
+                            <select class="status-select ${selectClass}" onchange="changeLeadStatus('${lead.phone_digits}', this.value)">
+                                <option value="Pendente" ${status === 'Pendente' ? 'selected' : ''}>Pendente</option>
+                                <option value="Contatado" ${status === 'Contatado' ? 'selected' : ''}>Contatado</option>
+                                <option value="Sucesso" ${status === 'Sucesso' ? 'selected' : ''}>Sucesso (Respondeu)</option>
+                                <option value="Sem Interesse" ${status === 'Sem Interesse' ? 'selected' : ''}>Sem Interesse</option>
+                                <option value="Não existe" ${status === 'Não existe' ? 'selected' : ''}>Não existe</option>
+                                <option value="Já é cliente" ${status === 'Já é cliente' ? 'selected' : ''}>Já é cliente</option>
+                                <option value="Não conserta games" ${status === 'Não conserta games' ? 'selected' : ''}>Não conserta games</option>
+                                <option value="Terceriza" ${status === 'Terceriza' ? 'selected' : ''}>Terceriza</option>
+                            </select>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+        }
+
+        // Altera o status do lead
+        function changeLeadStatus(phoneDigits, newStatus) {
+            crmStatuses[phoneDigits] = newStatus;
+            saveCRMStatuses(phoneDigits);
+            updateKPIs();
+            renderTable();
+            
+            // Se o lead editado for o ativo, garante que sua renderização reflita as mudanças
+            const activeLead = LEADS_DATA[activeLeadIndex];
+            if (activeLead && activeLead.phone_digits === phoneDigits) {
+                selectLead(activeLeadIndex);
+            }
+
+            showToast(`Status atualizado para: ${newStatus}`);
+        }
+
+        // Seleciona um Lead e exibe seus detalhes no painel da direita
+        function selectLead(index) {
+            activeLeadIndex = index;
+            const lead = LEADS_DATA[index];
+            
+            if (!lead) return;
+
+            // Highlight linha ativa
+            const rows = document.querySelectorAll('#leads-table-body tr');
+            renderTable();
+
+            // Preenche dados do lead
+            document.getElementById('active-shop-name').textContent = lead.shop_full_name;
+            document.getElementById('active-shop-address').textContent = lead.address || "Sem endereço físico cadastrado";
+            document.getElementById('active-shop-city').textContent = lead.city;
+            document.getElementById('active-shop-phone').textContent = lead.phone_friendly;
+            
+            const urlLink = document.getElementById('active-shop-url');
+            if (lead.contact_link) {
+                urlLink.href = lead.contact_link;
+                urlLink.style.display = 'inline-flex';
+                urlLink.textContent = "Website/Canal";
+            } else {
+                urlLink.style.display = 'none';
+            }
+
+            document.getElementById('active-shop-meta').style.display = 'flex';
+
+            // Habilita botões
+            document.getElementById('btn-call-web').disabled = false;
+            document.getElementById('btn-call-api').disabled = false;
+
+            updateMessagePreview();
+        }
+
+        // Renderiza o preview da mensagem aplicando as variáveis dinâmicas
+        function updateMessagePreview() {
+            if (activeLeadIndex === -1) return;
+            
+            const lead = LEADS_DATA[activeLeadIndex];
+            const template = document.getElementById('template-text').value;
+            saveTemplate(template);
+
+            // Substituição de tags
+            let rendered = template
+                .replace(/\{\{\s*shop_brand\s*\}\}/g, lead.shop_brand)
+                .replace(/\{\{\s*city\s*\}\}/g, lead.city)
+                .replace(/\{\{\s*contact_link\s*\}\}/g, lead.contact_link || "(não possui)");
+
+            document.getElementById('message-preview').textContent = rendered;
+        }
+
+        // Insere variáveis dinâmicas no textarea do cursor
+        function insertVariable(variable) {
+            const textarea = document.getElementById('template-text');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            
+            textarea.value = text.substring(0, start) + variable + text.substring(end);
+            textarea.focus();
+            
+            // Move cursor para depois da variável inserida
+            textarea.selectionStart = textarea.selectionEnd = start + variable.length;
+            
+            updateMessagePreview();
+        }
+
+        // Filtra a lista na busca e cidades
+        function filterLeads() {
+            renderTable();
+        }
+
+        // Dispara mensagem no WhatsApp abrindo em nova aba
+        function sendWhatsApp(type) {
+            if (activeLeadIndex === -1) return;
+            
+            const lead = LEADS_DATA[activeLeadIndex];
+            const text = document.getElementById('message-preview').textContent;
+            const encodedText = encodeURIComponent(text);
+            const phone = lead.phone_digits;
+            
+            let url = "";
+            if (type === 'web') {
+                // Padrão para WhatsApp Web no computador
+                url = `https://web.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
+            } else {
+                // Padrão para API/Celular/Desktop App
+                url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedText}`;
+            }
+
+            window.open(url, '_blank');
+
+            // Atualiza automaticamente o status comercial para "Contatado" após o clique
+            if (crmStatuses[lead.phone_digits] === 'Pendente') {
+                changeLeadStatus(lead.phone_digits, 'Contatado');
+            }
+        }
+
+        // Sistema de Toast de Alerta
+        function showToast(message) {
+            const toast = document.getElementById('toast-alert');
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Limpa e reseta todos os status salvos no CRM local
+        function resetAllCRM() {
+            if (confirm("Você tem certeza que deseja limpar todo o seu progresso de abordagem comercial? Isso redefinirá todos os leads para 'Pendente'.")) {
+                crmStatuses = {};
+                LEADS_DATA.forEach(lead => {
+                    crmStatuses[lead.phone_digits] = "Pendente";
+                });
+                saveCRMStatuses();
+                updateKPIs();
+                renderTable();
+                showToast("Progresso do CRM redefinido!");
+            }
+        }
+
+        // Exporta o progresso do CRM em CSV de volta para o usuário
+        function exportCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Telefone,Formatado,Nome Amigavel,Nome Completo,Cidade,Endereco,Link Contato,Status CRM,Mensagem Enviada\n";
+
+            LEADS_DATA.forEach(lead => {
+                const status = crmStatuses[lead.phone_digits] || "Pendente";
+                
+                // Constrói a mensagem personalizada do template
+                const template = document.getElementById('template-text').value;
+                let msg = template
+                    .replace(/\{\{\s*shop_brand\s*\}\}/g, lead.shop_brand)
+                    .replace(/\{\{\s*city\s*\}\}/g, lead.city)
+                    .replace(/\{\{\s*contact_link\s*\}\}/g, lead.contact_link || "");
+                
+                // Escape para aspas e novas linhas no CSV
+                const escapedName = `"${lead.shop_full_name.replace(/"/g, '""')}"`;
+                const escapedBrand = `"${lead.shop_brand.replace(/"/g, '""')}"`;
+                const escapedAddress = `"${(lead.address || '').replace(/"/g, '""')}"`;
+                const escapedMsg = `"${msg.replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+
+                csvContent += `${lead.phone_digits},${lead.phone_friendly},${escapedBrand},${escapedName},${lead.city},${escapedAddress},${lead.contact_link || ''},${status},${escapedMsg}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "crm_whatsapp_prospeccao_rs.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast("Planilha CRM exportada com sucesso!");
+        }
+    </script>
+</body>
+</html>
